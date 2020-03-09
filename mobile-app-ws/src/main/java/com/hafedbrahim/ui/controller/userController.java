@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hafedbrahim.exceptions.UserServiceException;
 import com.hafedbrahim.service.UserService;
 import com.hafedbrahim.shared.dto.UserDto;
+import com.hafedbrahim.ui.model.reponse.ErrorMessages;
 import com.hafedbrahim.ui.model.reponse.UserRest;
 import com.hafedbrahim.ui.model.request.UserDetailsRequestModel;
 
@@ -41,7 +43,9 @@ public class userController {
 							 MediaType.APPLICATION_JSON_VALUE}, 
 				produces = {MediaType.APPLICATION_XML_VALUE, 
 							MediaType.APPLICATION_JSON_VALUE})	
-	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) {
+	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception{
+		
+		if(userDetails.getEmail().isEmpty()) throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		
 		UserRest returnedValue = new UserRest();
 		
