@@ -16,6 +16,7 @@ import com.hafedbrahim.exceptions.UserServiceException;
 import com.hafedbrahim.service.UserService;
 import com.hafedbrahim.shared.dto.UserDto;
 import com.hafedbrahim.ui.model.reponse.ErrorMessages;
+import com.hafedbrahim.ui.model.reponse.OperationSatusModel;
 import com.hafedbrahim.ui.model.reponse.UserRest;
 import com.hafedbrahim.ui.model.request.UserDetailsRequestModel;
 
@@ -58,14 +59,40 @@ public class userController {
 		return returnedValue;
 	}
 	
-	@PutMapping
-	public String updateUser() {
-		return "put user was called";
+	@PutMapping(path="/{id}",
+				consumes = {MediaType.APPLICATION_XML_VALUE, 
+			 				MediaType.APPLICATION_JSON_VALUE}, 
+				produces = {MediaType.APPLICATION_XML_VALUE, 
+							MediaType.APPLICATION_JSON_VALUE})	
+	public UserRest updateUser(@PathVariable String id, 
+							   @RequestBody UserDetailsRequestModel userDetails) 
+									   throws Exception{
+		if(userDetails.getEmail().isEmpty()) 
+			throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+		
+		UserRest returnedValue = new UserRest();
+		
+		UserDto userDto = new UserDto();
+		BeanUtils.copyProperties(userDetails, userDto);
+		
+		UserDto updatedUser = userService.updateUser(id, userDto);	
+		BeanUtils.copyProperties(updatedUser, returnedValue);
+		
+		return returnedValue;
 	}
 	
-	@DeleteMapping
-	public String deleteUser() {
-		return "delete user was called";
+	@DeleteMapping(path="/{id}",
+				   produces = {MediaType.APPLICATION_XML_VALUE, 
+							   MediaType.APPLICATION_JSON_VALUE})	
+	public OperationSatusModel deleteUser(@PathVariable String id) {
+		OperationSatusModel returnedValue = new OperationSatusModel();
+		returnedValue.setOperatinName("DELETE");
+		
+		userService.deleteUser(id);
+		
+		returnedValue.setOperationResult("SUCCESS");
+		
+		return returnedValue;
 	}
 	
 } 
